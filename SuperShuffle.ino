@@ -40,8 +40,8 @@ byte swapFace = 6;
 byte swapColorIndex = numColors;
 Timer swapTimer;
 
-#define SWAP_DURATION 2000
-#define FADE_DURATION 500
+#define SWAP_DURATION 600
+#define FADE_DURATION 300
 
 void setup() {
   // put your setup code here, to run once:
@@ -129,12 +129,23 @@ void displaySelected(Color c) {
 /*
  * a: starting color 
  * b: ending color
- * face: face that the swap is happening on
+ * offset: face that the swap is happening on
  * t: time since animation started
  */
-void displaySwapColorsOnFace(Color a, Color b, byte face, uint16_t t) {
+void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
 
+  byte face_shifted;
   
+  FOREACH_FACE(f) {
+     face_shifted = (f + offset) % 6;
+     
+     if(t > (f*SWAP_DURATION) / 6) {   
+       setColorOnFace(b,face_shifted); 
+     }
+     else {
+       setColorOnFace(a,face_shifted);
+     }
+  }  
 }
 
 byte getNeighborState(byte data) {
