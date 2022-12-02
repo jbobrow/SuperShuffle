@@ -36,6 +36,8 @@ enum States {
 
 byte myState = IDLE;
 
+uint32_t selectedTime;
+
 byte swapFace = 6;
 byte swapColorIndex = numColors;
 Timer swapTimer;
@@ -59,6 +61,7 @@ void loop() {
     // Toggle from IDLE to SELECTED or reverse
     if( myState == IDLE ) {
       myState = SELECTED;
+      selectedTime = millis();
     }
     else if( myState == SELECTED ) {
       myState = IDLE;
@@ -122,7 +125,7 @@ void loop() {
  * Shows that a piece has been selected and waiting for a swap partner
  */
 void displaySelected(Color c) {
-  byte bri =  64 + (3 * sin8_C(millis()/6) / 4);
+  byte bri =  64 + (3 * sin8_C( 128 + (millis() - selectedTime)/6) / 4);
   setColor( dim(colors[myColorIndex], bri));
 }
 
