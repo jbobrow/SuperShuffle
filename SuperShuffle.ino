@@ -8,6 +8,9 @@
     2. click adjacent Blink to swap
 
     TODO:
+      Custom color palette (bright and distinguishable colors)
+    
+    TODO:
       A.I.
       Level 1: An individual can determine which swap will result locally in more connected of the same color
       Level 2: An individual can report to neighbors it's preference for color...  
@@ -24,7 +27,7 @@
     --------------------
 */
 
-Color colors[] = {CYAN, ORANGE, MAGENTA, YELLOW, BLUE};
+Color colors[] = {CYAN, ORANGE, MAGENTA, YELLOW, GREEN};
 byte numColors = 5;
 byte myColorIndex;
 
