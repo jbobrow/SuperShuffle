@@ -122,8 +122,8 @@ void loop() {
  * Shows that a piece has been selected and waiting for a swap partner
  */
 void displaySelected(Color c) {
-  setColor( colors[myColorIndex] );
-  setColorOnFace(WHITE, (millis()/200) % 6 );
+  byte bri =  64 + (3 * sin8_C(millis()/6) / 4);
+  setColor( dim(colors[myColorIndex], bri));
 }
 
 /*
