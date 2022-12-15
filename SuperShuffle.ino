@@ -45,6 +45,9 @@ byte swapFace = 6;
 byte swapColorIndex = numColors;
 Timer swapTimer;
 
+byte bAutoSwap = 0; // acts like a boolean, becomes 1 when initiating auto swap
+byte autoSwapFace = 6;
+
 #define SWAP_DURATION 600
 #define FADE_DURATION 300
 
@@ -84,7 +87,10 @@ void loop() {
       byte neighborColorIndex = getNeighborColorIndex(neighborData);
 
       if( myState == IDLE ) {
-        break;
+        // look for auto swap to select me
+        if(getNeighborAutoSwap(neighborData) == 1) {
+          myState == SELECTED;  // I've been chosen to autoswap
+        }
       }
       else if ( myState == SELECTED ) {
         if( neighborState == SELECTED || neighborState == SWAP ) {
@@ -120,8 +126,12 @@ void loop() {
   }
 
   // 4. communicate my color and state
-  byte myData = (myColorIndex << 2) + (myState);
-  setValueSentOnAllFaces(myData);
+  // for auto swapping, we'll send unique signals on each face
+  FOREACH_FACE(f) {
+    // if I choose to swap    
+    byte myData = (bAutoSwap << 5) + (myColorIndex << 2) + (myState);
+    setValueSentOnAllFaces(myData);
+  }
 }
 
 /*
@@ -159,5 +169,9 @@ byte getNeighborState(byte data) {
 }
 
 byte getNeighborColorIndex(byte data) {
-  return data >> 2;  // return the highest bits
+  return (data >> 2) & 7;  // return the highest bits
+}
+
+byte getNeighborAutoSwap(byte data) {
+  return (data >> 5) & 1; // return the 6
 }
