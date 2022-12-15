@@ -72,17 +72,7 @@ void loop() {
       myState = IDLE;
     }
 
-    bool hasSelectedNeighbors = false;
-    FOREACH_FACE(f) {
-      if (!isValueReceivedOnFaceExpired(f)) {
-        byte neighborData = getLastValueReceivedOnFace(f);
-        byte neighborState = getNeighborState(neighborData);
-        if ( neighborState == SELECTED ) {
-          hasSelectedNeighbors = true;
-        }
-      }
-    }
-    if (!hasSelectedNeighbors) {
+    if (!hasNeighborOfType(SELECTED)) {
       bFirstPressed = true;
     }
 
@@ -216,6 +206,25 @@ void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
 //      //setColorOnFace(BLUE, face_shifted);
 //    }
 //  }
+}
+
+/*
+ * Function that returns if the Blink has any neighbors of a specific type
+ */
+
+bool hasNeighborOfType(byte type) {
+
+    FOREACH_FACE(f) {
+      if (!isValueReceivedOnFaceExpired(f)) {
+        byte neighborData = getLastValueReceivedOnFace(f);
+        byte neighborState = getNeighborState(neighborData);
+        if ( neighborState == type ) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
 }
 
 byte getNeighborState(byte data) {
