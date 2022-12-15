@@ -154,10 +154,7 @@ void loop() {
       if (myState == IDLE && !hasNeighborOfType(SELECTED)) {
         myState = SELECTED;
         bFirstPressed = true;
-        autoSwapFace = random(5);
-        while(isValueReceivedOnFaceExpired(autoSwapFace)) {
-          autoSwapFace = random(5);
-        }
+        autoSwapFace = getAutoSwapFace();
         bAutoSwap = 1;
       }
     }
@@ -230,6 +227,26 @@ bool hasNeighborOfType(byte type) {
   }
 
   return false;
+}
+
+/*
+ * function to determine and return the best swap
+ */
+byte getAutoSwapFace() {
+
+  // Random version
+  byte face = random(5); // determine based on surroundings...
+  while(isValueReceivedOnFaceExpired(face)) {
+    face = random(5);
+  }
+  return face;
+
+  // Smarter version
+  // look at all neighbors
+  // can my move result in more color adjacency?
+  // if I swap, will there be a local net positive?
+  // i.e.
+  // if there are more than one of a color clumped together
 }
 
 byte getNeighborState(byte data) {
