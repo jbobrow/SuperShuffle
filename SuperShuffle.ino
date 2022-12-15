@@ -47,6 +47,7 @@ Timer swapTimer;
 
 byte bAutoSwap = 0; // acts like a boolean, becomes 1 when initiating auto swap
 byte autoSwapFace = 6;
+Timer autoSwapTimer;
 
 bool bFirstPressed = false;
 
@@ -58,6 +59,8 @@ void setup() {
   randomize();
   myColorIndex = random(numColors - 1);
   setColor(colors[myColorIndex]);
+
+  autoSwapTimer.set((4 + random(8)) * 1000);
 }
 
 void loop() {
@@ -92,10 +95,11 @@ void loop() {
       byte neighborState = getNeighborState(neighborData);
       byte neighborColorIndex = getNeighborColorIndex(neighborData);
 
-      if( myState == IDLE ) {
+      if ( myState == IDLE ) {
         // look for auto swap to select me
-        if(getNeighborAutoSwap(neighborData) == 1) {
-          myState == SELECTED;  // I've been chosen to autoswap
+        if (getNeighborAutoSwap(neighborData) == 1) {
+          myState = SELECTED;  // I've been chosen to autoswap
+          selectedTime = millis();
         }
       }
       else if ( myState == SELECTED ) {
@@ -113,10 +117,12 @@ void loop() {
   }
 
   if ( myState == SWAP && !hasNeighborOfType(SELECTED) && swapTimer.isExpired() ) {
-    
+
     bFirstPressed = false; // reset the first pressed variable
     myState = IDLE;
     myColorIndex = swapColorIndex;
+    bAutoSwap = 0;    // reset autoswap
+    autoSwapFace = 6; // reset autoswap
   }
 
 
@@ -131,12 +137,44 @@ void loop() {
     displaySwapColorsOnFace(colors[myColorIndex], colors[swapColorIndex], swapFace, SWAP_DURATION - swapTimer.getRemaining());
   }
 
+  // 3.a – run the autoswap algorithm
+  // random chance... once every N-Nº seconds to autoswap
+  // if not selected and no neighbors selected
+  // become selected and first pressed
+  // pick an auto swap face
+  // set auto swap to true
+  if (autoSwapTimer.isExpired()) {
+
+    autoSwapTimer.set((4 + random(8)) * 1000);
+
+    if (isAlone()) {
+      // do nothing
+    }
+    else {
+      if (myState == IDLE && !hasNeighborOfType(SELECTED)) {
+        myState = SELECTED;
+        bFirstPressed = true;
+        autoSwapFace = random(5);
+        while(isValueReceivedOnFaceExpired(autoSwapFace)) {
+          autoSwapFace = random(5);
+        }
+        bAutoSwap = 1;
+      }
+    }
+  }
+
   // 4. communicate my color and state
   // for auto swapping, we'll send unique signals on each face
   FOREACH_FACE(f) {
-    // if I choose to swap    
-    byte myData = (bAutoSwap << 5) + (myColorIndex << 2) + (myState);
-    setValueSentOnAllFaces(myData);
+    // if I choose to swap
+    byte myData;
+    if (autoSwapFace == f) {
+      myData = (bAutoSwap << 5) + (myColorIndex << 2) + (myState);
+    }
+    else {
+      myData = (0 << 5) + (myColorIndex << 2) + (myState);
+    }
+    setValueSentOnFace(myData, f);
   }
 }
 
@@ -177,21 +215,21 @@ void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
 }
 
 /*
- * Function that returns if the Blink has any neighbors of a specific type
- */
+   Function that returns if the Blink has any neighbors of a specific type
+*/
 bool hasNeighborOfType(byte type) {
 
-    FOREACH_FACE(f) {
-      if (!isValueReceivedOnFaceExpired(f)) {
-        byte neighborData = getLastValueReceivedOnFace(f);
-        byte neighborState = getNeighborState(neighborData);
-        if ( neighborState == type ) {
-          return true;
-        }
+  FOREACH_FACE(f) {
+    if (!isValueReceivedOnFaceExpired(f)) {
+      byte neighborData = getLastValueReceivedOnFace(f);
+      byte neighborState = getNeighborState(neighborData);
+      if ( neighborState == type ) {
+        return true;
       }
     }
-    
-    return false;
+  }
+
+  return false;
 }
 
 byte getNeighborState(byte data) {
