@@ -164,51 +164,11 @@ void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
       setColorOnFace(a, face_shifted);
     }
   }
-
-  // Fade slowly...
-  // identify which face LED(s) are animating
-  // update their status based on t
-  // period for each LED = t/6
-  // duration for fadeout and fadein = t/12 (if completing one at a time w/o overlap)
-
-//  FOREACH_FACE(f) {
-//    if (!bFirstPressed) {
-//      face_shifted = (f + offset) % 6;
-//    }
-//    else {
-//      face_shifted = ((5 - f + offset) % 6);
-//    }
-//
-//    if ( int(t / (SWAP_DURATION / 6)) == f ) {
-//      // this is the face that is animating
-//      // progress in local animation
-//      int progress = t - f * (SWAP_DURATION / 6);
-//
-//      // only fade out version
-////      byte bri = 256 - map(progress, 0, (SWAP_DURATION / 6), 0, 256);
-////      setColorOnFace(dim(a, bri), face_shifted);
-//
-//        // fade out fade in
-////      if ( progress < (SWAP_DURATION / 12) ) {
-////        // fade down color A
-////        byte bri = 256 - map(progress, 0, (SWAP_DURATION / 12), 0, 256);
-////        setColorOnFace(dim(a, bri), face_shifted);
-////      }
-////      else {
-////        // fade up color B
-////        byte bri = map(progress, (SWAP_DURATION / 12), (SWAP_DURATION / 6), 0, 256);
-////        setColorOnFace(dim(b, progress - 256), face_shifted);
-////      }
-//      // DEBUG: Show blue on leading face
-//      //setColorOnFace(BLUE, face_shifted);
-//    }
-//  }
 }
 
 /*
  * Function that returns if the Blink has any neighbors of a specific type
  */
-
 bool hasNeighborOfType(byte type) {
 
     FOREACH_FACE(f) {
