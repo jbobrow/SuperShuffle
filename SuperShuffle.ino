@@ -120,6 +120,8 @@ void loop() {
   }
 
   if ( myState == SWAP && !hasSelectedNeighbors && swapTimer.isExpired() ) {
+    
+    bFirstPressed = false; // reset the first pressed variable
     myState = IDLE;
     myColorIndex = swapColorIndex;
   }
