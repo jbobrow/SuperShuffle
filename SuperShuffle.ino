@@ -45,6 +45,8 @@ byte swapFace = 6;
 byte swapColorIndex = numColors;
 Timer swapTimer;
 
+bool bFirstPressed = false;
+
 #define SWAP_DURATION 600
 #define FADE_DURATION 300
 
@@ -69,6 +71,21 @@ void loop() {
     else if( myState == SELECTED ) {
       myState = IDLE;
     }
+
+    bool hasSelectedNeighbors = false;
+    FOREACH_FACE(f) {
+      if(!isValueReceivedOnFaceExpired(f)) {
+          byte neighborData = getLastValueReceivedOnFace(f);
+          byte neighborState = getNeighborState(neighborData);
+            if( neighborState == SELECTED ) {
+              hasSelectedNeighbors = true;
+          }
+        }
+    }
+    if(!hasSelectedNeighbors) {
+      bFirstPressed = true;
+    }
+
   }
 
   // 2. handle Blinks interaction
@@ -144,8 +161,13 @@ void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
 
   // Simple version - hard transition
   FOREACH_FACE(f) {
-     face_shifted = (f + offset) % 6;
-     
+    if(!bFirstPressed) {
+      face_shifted = (f + offset) % 6;
+    }
+    else {
+      face_shifted = ((5- f + offset) % 6);
+    }
+        
      if(t > (f*SWAP_DURATION) / 6) {   
        setColorOnFace(b,face_shifted); 
      }
@@ -161,8 +183,13 @@ void displaySwapColorsOnFace(Color a, Color b, byte offset, uint16_t t) {
   // duration for fadeout and fadein = t/12 (if completing one at a time w/o overlap)
 
   FOREACH_FACE(f) {
-    face_shifted = (f + offset) % 6;
-
+    if(!bFirstPressed) {
+      face_shifted = (f + offset) % 6;
+    }
+    else {
+      face_shifted = ((5- f + offset) % 6);
+    }
+    
     if( int(t / (SWAP_DURATION/6)) == f ) {
       // this is the face that is animating
       // progress in local animation
