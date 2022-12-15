@@ -83,7 +83,6 @@ void loop() {
   // if I am IDLE... nothing to do here
   // if I am SELECTED and a neighbor is SELECTED or SWAP, I go to SWAP
   // if I am SWAP and all neighbors are SWAP or IDLE, I go to IDLE
-  bool hasSelectedNeighbors = false;
   FOREACH_FACE(f) {
     if (!isValueReceivedOnFaceExpired(f)) {
       byte neighborData = getLastValueReceivedOnFace(f);
@@ -91,7 +90,7 @@ void loop() {
       byte neighborColorIndex = getNeighborColorIndex(neighborData);
 
       if ( myState == IDLE ) {
-        break;
+        // nothing to do here
       }
       else if ( myState == SELECTED ) {
         if ( neighborState == SELECTED || neighborState == SWAP ) {
@@ -102,14 +101,12 @@ void loop() {
         }
       }
       else if ( myState == SWAP ) {
-        if ( neighborState == SELECTED ) {
-          hasSelectedNeighbors = true;
-        }
+        // nothing to do here
       }
     }
   }
 
-  if ( myState == SWAP && !hasSelectedNeighbors && swapTimer.isExpired() ) {
+  if ( myState == SWAP && !hasNeighborOfType(SELECTED) && swapTimer.isExpired() ) {
     
     bFirstPressed = false; // reset the first pressed variable
     myState = IDLE;
